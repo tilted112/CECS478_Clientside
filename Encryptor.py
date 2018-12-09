@@ -20,7 +20,7 @@ def MyencryptMAC(message):
     return ct, iv, tag, EncKey, HMACKey
         
 def MyRSAEncrypt(message, RSA_Publickey_filePath):
-    with open('public_key.pem', 'rb') as file:
+    with open(RSA_Publickey_filePath, 'rb') as file:
         pkey = serialization.load_pem_public_key(
             file.read(),
             backend=default_backend()
@@ -37,12 +37,15 @@ def MyRSAEncrypt(message, RSA_Publickey_filePath):
     return RSACipher, ct, iv, tag
 
 def MyJSONEncrypt(message, RSA_Publickey_filePath):
-    RSACipher, ct, iv, tag = MyRSAEncrypt(message, RSA_Publickey_filePath)
+    RSACipher, ct, iv, tag = MyRSAEncrypt(message, 'public_key.pem')
     jason = json.dumps({
             "RSACipher": RSACipher.decode('latin-1'),
             "ct": ct.decode('latin-1'),
             "iv": iv.decode('latin-1'),
             "tag": tag.decode('latin-1')
         })
+    rjason = jason.replace("&", "ampersand")
+    rrjason = rjason.replace("+", "plusplus")
     time.sleep(.1)
-    return jason
+    return rrjason
+

@@ -37,5 +37,7 @@ def MyRSADecrypt(RSACipher, ct, iv, RSA_Privatekey_filePath, tag):
     return MydecryptMAC(ct, iv, tag, key[0:32], key[len(key[0:32]):])
 
 def MyJSONDecrypt(message, private_key):
-    encrypted = json.loads(message)
+    msg = message.replace("ampersand", "&")
+    rmsg = msg.replace("plusplus", "+")
+    encrypted = json.loads(rmsg)
     return MyRSADecrypt(bytes(encrypted["RSACipher"], 'latin-1'), bytes(encrypted["ct"], 'latin-1'), bytes(encrypted["iv"], 'latin-1'), private_key, bytes(encrypted["tag"], 'latin-1'))

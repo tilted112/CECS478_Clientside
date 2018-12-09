@@ -139,46 +139,53 @@ def ChatWindow(name, pk, privk):
         while(threadFlg):
             time.sleep(1)
             #route = "https://teamus.me/messages/getmessage"
-            route = "http://localhost:4000/messages/getmessage"
+            route = "http://localhost:4000/messages/getmessage" 
             payload = "token=" + token + "&from=" + cpName
             headers = {
                     'content-type': "application/x-www-form-urlencoded",
                     'cache-control': "no-cache"
                     }
             response = requests.request("POST", route, data=payload, headers=headers)
-            print(response.status_code)
+            print(response.status_code)            
             if(response.status_code == 200):
-                #mjson = response.json().get('message')
-                #print(mjson)
-                print(response.text)
-                print("########")
-                message = Decryptor.MyJSONDecrypt(response.text, myPrivk)       
+                data = response.json().get('message')
+                print(data)
+                message = Decryptor.MyJSONDecrypt(data, "private_key.pem")
+                chatBox.insert(INSERT, '%s\n' % (cpName + ">" + message.decode("latin-1")))
                 print(message)
-        print("done")        
-        
+        print("done")
+    
     thread = threading.Thread(target=getMessages)
     thread.start()
     
     def sendMessage(event):
-        input_get = input_field.get()
-        print(input_get)
-        chatBox.insert(INSERT, '%s\n' % (user + ">" + input_get))
-        messageJSON = Encryptor.MyJSONEncrypt(input_get, cpPK)
-        #route = "https://teamus.me/messages/sendmessage"
-        route = "http://localhost:4000/messages/sendmessage"
-        payload = "token=" + token + "&to=" + cpName + "&message=" + messageJSON
-        headers = {
-                'content-type': "application/x-www-form-urlencoded",
-                'cache-control': "no-cache"
-                }
-        response = requests.request("POST", route, data=payload, headers=headers)
-        input_user.set('')
-        return "break"
-    
+       inputmsg = input_field.get()
+       print(inputmsg)
+       if(inputmsg == "!quit"):
+           global threadFlg
+           threadFlg = False
+           return "break"
+       else:
+           chatBox.insert(INSERT, '%s\n' % (user + ">" + inputmsg))
+           jsonMsg = Encryptor.MyJSONEncrypt(inputmsg, "public_key.pem")
+           print(jsonMsg)
+           #print("encryptor")
+           #route = "https://teamus.me/messages/sendmessage"
+           route = "http://localhost:4000/messages/sendmessage"
+           payload = "token=" + token + "&to=" + cpName + "&message=" + jsonMsg
+           #print(payload)
+           headers = {
+                   'content-type': "application/x-www-form-urlencoded",
+                   'cache-control': "no-cache"
+                     }
+           #print(payload)
+           response = requests.post(route, data=payload, headers=headers)
+           input_user.set('')
+           return "break"
+       
     input_field.bind("<Return>", sendMessage)
     
     frame.pack()
-        
     
 Menu()
 window.mainloop()
