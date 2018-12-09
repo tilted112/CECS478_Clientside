@@ -194,12 +194,13 @@ def ChatWindow(name, pk, privk):
     
     def getMessages():
         nonlocal myPrivk
+        global user
         while(threadFlg):
             time.sleep(1)
             #route = "https://teamus.me/messages/getmessage"
             route = "http://localhost:4000/messages/getmessage" 
             #payload = "token=" + token + "&from=" + cpName
-            payload = "from=" + cpName
+            payload = "from=" + cpName + "&to=" + user
             headers = {
                     'content-type': "application/x-www-form-urlencoded",
                     'cache-control': "no-cache",
@@ -217,13 +218,14 @@ def ChatWindow(name, pk, privk):
         nonlocal cpPK
         nonlocal cpName
         nonlocal input_field
+        global user
         inputmsg = input_field.get()
         chatBox.insert(INSERT, '%s\n' % (user + ">" + inputmsg))
         jsonMsg = Encryptor.MyJSONEncrypt(inputmsg, cpPK)
         #route = "https://teamus.me/messages/sendmessage"
         route = "http://localhost:4000/messages/sendmessage"
         #payload = "token=" + token + "&to=" + cpName + "&message=" + jsonMsg
-        payload = "to=" + cpName + "&message=" + jsonMsg
+        payload = "from=" + user + "&to=" + cpName + "&message=" + jsonMsg
         headers = {
                 'content-type': 'application/x-www-form-urlencoded',
                 'cache-type': 'no-cache',
