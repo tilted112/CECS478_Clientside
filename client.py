@@ -2,6 +2,7 @@ import os, requests, json, sys, threading, time
 import Decryptor
 import Encryptor
 from tkinter import *
+from tkinter import messagebox
 
 window = Tk()
 token = ""
@@ -10,11 +11,11 @@ user = ""
 def Menu():
     frame = Frame(window)
     lbl = Label(frame, text="End2End encrypted Chat")
-    createUserBtn = Button(frame, text="Signup",
+    createUserBtn = Button(frame, text="Signup", bd=3,
                            command=lambda: [frame.pack_forget(), SignUp()])
-    signInBtn = Button(frame, text="Signin",
+    signInBtn = Button(frame, text="Signin", bd=3,
                        command=lambda: [frame.pack_forget(), SignIn()])
-    keygenBtn = Button(frame, text="Generate Key-Pair",
+    keygenBtn = Button(frame, text="Generate Key-Pair", bd=3,
                        command=lambda: [KeyGen()])
     lbl.pack(expand=YES, fill=X)
     createUserBtn.pack(expand=YES, fill=X)
@@ -27,10 +28,10 @@ def SignUp():
     nameLbl = Label(frame, text="Username")
     nameEntry = Entry(frame, bd=5)
     pwLbl = Label(frame, text="Password")
-    pwEntry = Entry(frame, bd=5)
+    pwEntry = Entry(frame, bd=5, show='*')
     pw2Lbl = Label(frame, text="Reenter Password")
-    pw2Entry = Entry(frame, bd=5)
-    btn = Button(frame, text="Signup",
+    pw2Entry = Entry(frame, bd=5, show='*')
+    btn = Button(frame, text="Signup",bd=3,
                  command=lambda: [frame.pack_forget(), CreateNewUser(nameEntry.get(), pwEntry.get(), pw2Entry.get())])
     nameLbl.pack(expand=YES, fill=X)
     nameEntry.pack(expand=YES, fill=X)
@@ -51,7 +52,11 @@ def CreateNewUser(name, pw, pw2):
                 'cache-control': "no-cache"
                 }
         response = requests.request("POST", route, data=payload, headers=headers)
-        CreateNewUserSuccessful()
+        if(response.status_code == 200):
+            CreateNewUserSuccessful()
+        else:
+            messagebox.showinfo('Notification',response.text())
+            CreateNewUserFailed()
     else:
         CreateNewUserFailed()
 
@@ -59,7 +64,7 @@ def CreateNewUserSuccessful():
     frame = Frame(window)
     lbl = Label(frame, text="Signup completed")
     lbl.pack()
-    btn = Button(frame, text="Menu",
+    btn = Button(frame, text="Menu",bd=3,
                  command=lambda: [frame.pack_forget(), Menu()])
     btn.pack(expand=YES, fill=X)
     frame.pack()
@@ -68,7 +73,7 @@ def CreateNewUserFailed():
     frame = Frame(window)
     lbl = Label(frame, text="Signup failed. Try again")
     lbl.pack()
-    btn = Button(frame, text="Menu",
+    btn = Button(frame, text="Menu",bd=3,
                  command=lambda: [frame.pack_forget(), Menu()])
     btn.pack(expand=YES, fill=X)
     frame.pack()
@@ -78,10 +83,10 @@ def SignIn():
     nameLbl = Label(frame, text="Username")
     nameEntry = Entry(frame, bd=5)
     pwLbl = Label(frame, text="Password")
-    pwEntry = Entry(frame, bd=5)
-    btn = Button(frame, text="Signin",
-                 command=lambda: [frame.pack_forget(), Login('till', 'test')])
-    menuBtn = Button(frame, text="Menu",
+    pwEntry = Entry(frame, bd=5, show='*')
+    btn = Button(frame, text="Signin",bd=3,
+                 command=lambda: [frame.pack_forget(), Login(nameEntry.get(), pwEntry.get())])
+    menuBtn = Button(frame, text="Menu",bd=3,
                      command=lambda: [frame.pack_forget(), Menu()])
     nameLbl.pack(expand=YES, fill=X)
     nameEntry.pack(expand=YES, fill=X)
@@ -92,6 +97,9 @@ def SignIn():
     frame.pack()
     
 def Login(name, pw):
+    global token 
+    global user
+    user = name
      #route = "https://teamus.me/users/signin"
     route = "http://localhost:4000/users/signin"
     payload = "name=" + name + "&password=" + pw
@@ -100,16 +108,11 @@ def Login(name, pw):
             'cache-control': "no-cache"
             }
     response = requests.request("POST", route, data=payload, headers=headers)
-    global token 
-    global user 
-    token = response.json().get('token')
-    success = response.json().get('success')
-    user = name
-    if(success):
-        print("Signin successful")
+    if(response.status_code == 200):
+        token = response.json().get('token')
         StartChat()
     else:
-        print("Signin failed")
+        messagebox.showinfo('Notification','Your login attempt faild. Please try again')
         SignIn()        
      
 def KeyGen():
@@ -124,7 +127,7 @@ def StartChat():
     privLbl = Label(frame, text="Enter filename of your private key")
     privEntry = Entry(frame, bd=5)
     chatBtn = Button(frame, text="Start chat",
-                     command=lambda: [chatBtn.config(state="disabled"), ChatWindow('till', pkEntry.get(), privEntry.get())])
+                     command=lambda: [chatBtn.config(state="disabled"), ChatWindow(nameEntry.get(), pkEntry.get(), privEntry.get())])
     menuBtn = Button(frame, text="Menu",
                      command=lambda: [frame.pack_forget(), Menu()])
     nameLbl.pack(expand=YES, fill=X)
@@ -143,10 +146,7 @@ def ChatWindow(name, pk, privk):
     cpPK = pk
     myPrivk = privk
     threadFlg = True
-    
-    print("Publickey:" + cpPK)
-    print("Privatekey:" + myPrivk)
-    
+       
     frame = Frame(chatWindow)
     frame.pack(expand=YES, fill=BOTH)
 
@@ -155,6 +155,7 @@ def ChatWindow(name, pk, privk):
     chatFrm.grid_columnconfigure(0,weight=1)
     chatFrm.grid_rowconfigure(0,weight=1)
     chatBox = Text(chatFrm, borderwidth=3)
+    #chatBox.config(state='disabled')
     chatBox.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
     scrollBar = Scrollbar(chatFrm, command=chatBox.yview)
     scrollBar.grid(row=0, column=1, sticky="nsew")
@@ -173,10 +174,12 @@ def ChatWindow(name, pk, privk):
             time.sleep(1)
             #route = "https://teamus.me/messages/getmessage"
             route = "http://localhost:4000/messages/getmessage" 
-            payload = "token=" + token + "&from=" + cpName
+            #payload = "token=" + token + "&from=" + cpName
+            payload = "from=" + cpName
             headers = {
                     'content-type': "application/x-www-form-urlencoded",
-                    'cache-control': "no-cache"
+                    'cache-control': "no-cache",
+                    'x-access-token': token
                     }
             response = requests.request("POST", route, data=payload, headers=headers)
             print(response.status_code)            
@@ -185,9 +188,6 @@ def ChatWindow(name, pk, privk):
                 message = Decryptor.MyJSONDecrypt(data, myPrivk)
                 chatBox.insert(INSERT, '%s\n' % (cpName + ">" + message.decode("latin-1")))
         print("done")
-    
-    thread = threading.Thread(target=getMessages)
-    thread.start()
     
     def sendMessage(event):
         nonlocal cpPK
@@ -198,21 +198,25 @@ def ChatWindow(name, pk, privk):
         jsonMsg = Encryptor.MyJSONEncrypt(inputmsg, cpPK)
         #route = "https://teamus.me/messages/sendmessage"
         route = "http://localhost:4000/messages/sendmessage"
-        payload = "token=" + token + "&to=" + cpName + "&message=" + jsonMsg
+        #payload = "token=" + token + "&to=" + cpName + "&message=" + jsonMsg
+        payload = "to=" + cpName + "&message=" + jsonMsg
         headers = {
                 'content-type': 'application/x-www-form-urlencoded',
-                'cache-type': 'no-cache'
+                'cache-type': 'no-cache',
+                'x-access-token': token
                 }
         response = requests.post(route, data=payload, headers=headers)
         input_field.delete(0,'end')
         return 'break'
         
     def endChat():
-        print('endChat')
-        nonlocal threadFlg
-        threadFlg = False
-        chatWindow.destroy()
-       
+        if messagebox.askyesno('Notification', 'Do you really want to end the Chat?'):
+            nonlocal threadFlg
+            threadFlg = False
+            chatWindow.destroy()
+      
+    thread = threading.Thread(target=getMessages)
+    thread.start()
     input_field.bind("<Return>", sendMessage)
     #chatWindow.bind("<Destroy>", endChat())
     
