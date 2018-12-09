@@ -9,17 +9,17 @@ user = ""
 
 def Menu():
     frame = Frame(window)
-    label = Label(frame, text="End2End encrypted Chat")
-    label.pack(side="top", fill="x", pady=10)
+    lbl = Label(frame, text="End2End encrypted Chat")
     createUserBtn = Button(frame, text="Signup",
                            command=lambda: [frame.pack_forget(), SignUp()])
     signInBtn = Button(frame, text="Signin",
                        command=lambda: [frame.pack_forget(), SignIn()])
     keygenBtn = Button(frame, text="Generate Key-Pair",
                        command=lambda: [KeyGen()])
-    createUserBtn.pack(expand=YES, fill=BOTH)
-    signInBtn.pack(expand=YES, fill=BOTH)
-    keygenBtn.pack(expand=YES, fill=BOTH)
+    lbl.pack(expand=YES, fill=X)
+    createUserBtn.pack(expand=YES, fill=X)
+    signInBtn.pack(expand=YES, fill=X)
+    keygenBtn.pack(expand=YES, fill=X)
     frame.pack()
     
 def SignUp():
@@ -32,13 +32,13 @@ def SignUp():
     pw2Entry = Entry(frame, bd=5)
     btn = Button(frame, text="Signup",
                  command=lambda: [frame.pack_forget(), CreateNewUser(nameEntry.get(), pwEntry.get(), pw2Entry.get())])
-    nameLbl.pack()
-    nameEntry.pack()
-    pwLbl.pack()
-    pwEntry.pack()
-    pw2Lbl.pack()
-    pw2Entry.pack()
-    btn.pack()
+    nameLbl.pack(expand=YES, fill=X)
+    nameEntry.pack(expand=YES, fill=X)
+    pwLbl.pack(expand=YES, fill=X)
+    pwEntry.pack(expand=YES, fill=X)
+    pw2Lbl.pack(expand=YES, fill=X)
+    pw2Entry.pack(expand=YES, fill=X)
+    btn.pack(expand=YES, fill=X)
     frame.pack()
 
 def CreateNewUser(name, pw, pw2):
@@ -61,7 +61,7 @@ def CreateNewUserSuccessful():
     lbl.pack()
     btn = Button(frame, text="Menu",
                  command=lambda: [frame.pack_forget(), Menu()])
-    btn.pack()
+    btn.pack(expand=YES, fill=X)
     frame.pack()
     
 def CreateNewUserFailed():
@@ -70,7 +70,7 @@ def CreateNewUserFailed():
     lbl.pack()
     btn = Button(frame, text="Menu",
                  command=lambda: [frame.pack_forget(), Menu()])
-    btn.pack()
+    btn.pack(expand=YES, fill=X)
     frame.pack()
 
 def SignIn():
@@ -83,12 +83,12 @@ def SignIn():
                  command=lambda: [frame.pack_forget(), Login('till', 'test')])
     menuBtn = Button(frame, text="Menu",
                      command=lambda: [frame.pack_forget(), Menu()])
-    nameLbl.pack()
-    nameEntry.pack()
-    pwLbl.pack()
-    pwEntry.pack()
-    btn.pack()
-    menuBtn.pack()
+    nameLbl.pack(expand=YES, fill=X)
+    nameEntry.pack(expand=YES, fill=X)
+    pwLbl.pack(expand=YES, fill=X)
+    pwEntry.pack(expand=YES, fill=X)
+    btn.pack(expand=YES, fill=X)
+    menuBtn.pack(expand=YES, fill=X)
     frame.pack()
     
 def Login(name, pw):
@@ -127,14 +127,14 @@ def StartChat():
                      command=lambda: [chatBtn.config(state="disabled"), ChatWindow('till', pkEntry.get(), privEntry.get())])
     menuBtn = Button(frame, text="Menu",
                      command=lambda: [frame.pack_forget(), Menu()])
-    nameLbl.pack()
-    nameEntry.pack()
-    pkLbl.pack()
-    pkEntry.pack()
-    privLbl.pack()
-    privEntry.pack()
-    chatBtn.pack()
-    menuBtn.pack()
+    nameLbl.pack(expand=YES, fill=X)
+    nameEntry.pack(expand=YES, fill=X)
+    pkLbl.pack(expand=YES, fill=X)
+    pkEntry.pack(expand=YES, fill=X)
+    privLbl.pack(expand=YES, fill=X)
+    privEntry.pack(expand=YES, fill=X)
+    chatBtn.pack(expand=YES, fill=X)
+    menuBtn.pack(expand=YES, fill=X)
     frame.pack()
        
 def ChatWindow(name, pk, privk):
