@@ -37,7 +37,7 @@ def MyRSAEncrypt(message, RSA_Publickey_filePath):
     return RSACipher, ct, iv, tag
 
 def MyJSONEncrypt(message, RSA_Publickey_filePath):
-    RSACipher, ct, iv, tag = MyRSAEncrypt(message, 'public_key.pem')
+    RSACipher, ct, iv, tag = MyRSAEncrypt(message, RSA_Publickey_filePath)
     jason = json.dumps({
             "RSACipher": RSACipher.decode('latin-1'),
             "ct": ct.decode('latin-1'),

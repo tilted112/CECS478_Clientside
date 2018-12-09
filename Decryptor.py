@@ -20,7 +20,7 @@ def MydecryptMAC(ct, iv, tag, EncKey, HMACKey):
     return bytes(message)
         
 def MyRSADecrypt(RSACipher, ct, iv, RSA_Privatekey_filePath, tag):
-    with open('private_key.pem', 'rb') as file:
+    with open(RSA_Privatekey_filePath, 'rb') as file:
         pkey = serialization.load_pem_private_key(
             file.read(),
             password=None,
