@@ -7,6 +7,7 @@ from tkinter import messagebox
 window = Tk()
 token = ""
 user = ""
+userId = ""
 
 def Menu():
     frame = Frame(window)
@@ -55,7 +56,6 @@ def CreateNewUser(name, pw, pw2):
         if(response.status_code == 200):
             CreateNewUserSuccessful()
         else:
-            messagebox.showinfo('Notification',response.text())
             CreateNewUserFailed()
     else:
         CreateNewUserFailed()
@@ -99,8 +99,8 @@ def SignIn():
 def Login(name, pw):
     global token 
     global user
-    user = name
-     #route = "https://teamus.me/users/signin"
+    global userId
+    #route = "https://teamus.me/users/signin"
     route = "http://localhost:4000/users/signin"
     payload = "name=" + name + "&password=" + pw
     headers = {
@@ -109,6 +109,8 @@ def Login(name, pw):
             }
     response = requests.request("POST", route, data=payload, headers=headers)
     if(response.status_code == 200):
+        userId = response.json().get('id')
+        user = name
         token = response.json().get('token')
         StartChat()
     else:
@@ -130,6 +132,10 @@ def StartChat():
                      command=lambda: [chatBtn.config(state="disabled"), ChatWindow(nameEntry.get(), pkEntry.get(), privEntry.get())])
     menuBtn = Button(frame, text="Menu",
                      command=lambda: [frame.pack_forget(), Menu()])
+    deleteBtn = Button(frame, text="Delete User",
+                       command=lambda: [frame.pack_forget(), DeleteUser()])
+    pwBtn = Button(frame, text="Change Password",
+                   command=lambda: [frame.pack_forget(), ChangePwWindow()])
     nameLbl.pack(expand=YES, fill=X)
     nameEntry.pack(expand=YES, fill=X)
     pkLbl.pack(expand=YES, fill=X)
@@ -137,9 +143,73 @@ def StartChat():
     privLbl.pack(expand=YES, fill=X)
     privEntry.pack(expand=YES, fill=X)
     chatBtn.pack(expand=YES, fill=X)
+    pwBtn.pack(expand=YES, fill=X)
+    deleteBtn.pack(expand=YES, fill=X)
     menuBtn.pack(expand=YES, fill=X)
     frame.pack()
-       
+    
+def DeleteUser():
+    global userId
+    global token
+    #route = "https://teamus.me/users/
+    route = "http://localhost:4000/users/"
+    route = route + userId
+    headers = {
+            'content-type': "application/x-www-form-urlencoded",
+            'cache-control': "no-cache",
+            'x-access-token': token
+            }
+    response = requests.delete(route, data=None, headers=headers)
+    if(response.status_code == 200):
+        messagebox.showinfo('Notification', 'User successfully deleted')
+        Menu()
+    else:
+        messagebox.showerror('Error', 'Unable to delete user. Try again.')
+        Menu()
+    
+def ChangePwWindow():
+    frame = Frame(window)
+    pwLbl = Label(frame, text="New Password")
+    pwEntry = Entry(frame, bd=5, show='*')
+    pw2Lbl = Label(frame, text="Reenter Password")
+    pw2Entry = Entry(frame, bd=5, show='*')
+    btn = Button(frame, text="Change Password",bd=3,
+                 command=lambda: [frame.pack_forget(), ChangePw(pwEntry.get(), pw2Entry.get())])
+    pwLbl.pack(expand=YES, fill=X)
+    pwEntry.pack(expand=YES, fill=X)
+    pw2Lbl.pack(expand=YES, fill=X)
+    pw2Entry.pack(expand=YES, fill=X)
+    btn.pack(expand=YES, fill=X)
+    frame.pack()
+    
+    
+    
+def ChangePw(newPw, newPw2):
+    global user
+    global userId
+    global token
+    #route = "https://teamus.me/users/"
+    route = "http://localhost:4000/users/"
+    if(newPw == newPw2 and newPw != ''):
+        route = route + userId
+        payload = "name=" + user + "&password=" + newPw
+        headers = {
+                'content-type': "application/x-www-form-urlencoded",
+                'cache-control': "no-cache",
+                'x-access-token': token
+                }
+        respose = requests.put(route, data=payload, headers=headers)
+        if(respose.status_code == 200):
+            messagebox.showinfo('Notification', 'Password changed successfully')
+            Menu()
+        else:
+            messagebox.showerror('Error', 'Unable to change passord. Try again.')
+            Menu()
+    else:
+        messagebox.showerror('Error', 'Unable to change passord. Try again.')
+        Menu()
+    
+    
 def ChatWindow(name, pk, privk):
     chatWindow = Toplevel(window)
     cpName = name
