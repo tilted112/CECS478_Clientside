@@ -134,8 +134,6 @@ def StartChat():
                      command=lambda: [frame.pack_forget(), Menu()])
     deleteBtn = Button(frame, text="Delete User",
                        command=lambda: [frame.pack_forget(), DeleteUser()])
-    pwBtn = Button(frame, text="Change Password",
-                   command=lambda: [frame.pack_forget(), ChangePwWindow()])
     nameLbl.pack(expand=YES, fill=X)
     nameEntry.pack(expand=YES, fill=X)
     pkLbl.pack(expand=YES, fill=X)
@@ -143,7 +141,6 @@ def StartChat():
     privLbl.pack(expand=YES, fill=X)
     privEntry.pack(expand=YES, fill=X)
     chatBtn.pack(expand=YES, fill=X)
-    pwBtn.pack(expand=YES, fill=X)
     deleteBtn.pack(expand=YES, fill=X)
     menuBtn.pack(expand=YES, fill=X)
     frame.pack()
@@ -166,49 +163,6 @@ def DeleteUser():
     else:
         messagebox.showerror('Error', 'Unable to delete user. Try again.')
         Menu()
-    
-def ChangePwWindow():
-    frame = Frame(window)
-    pwLbl = Label(frame, text="New Password")
-    pwEntry = Entry(frame, bd=5, show='*')
-    pw2Lbl = Label(frame, text="Reenter Password")
-    pw2Entry = Entry(frame, bd=5, show='*')
-    btn = Button(frame, text="Change Password",bd=3,
-                 command=lambda: [frame.pack_forget(), ChangePw(pwEntry.get(), pw2Entry.get())])
-    pwLbl.pack(expand=YES, fill=X)
-    pwEntry.pack(expand=YES, fill=X)
-    pw2Lbl.pack(expand=YES, fill=X)
-    pw2Entry.pack(expand=YES, fill=X)
-    btn.pack(expand=YES, fill=X)
-    frame.pack()
-    
-    
-    
-def ChangePw(newPw, newPw2):
-    global user
-    global userId
-    global token
-    #route = "https://teamus.me/users/"
-    route = "http://localhost:4000/users/"
-    if(newPw == newPw2 and newPw != ''):
-        route = route + userId
-        payload = "name=" + user + "&password=" + newPw
-        headers = {
-                'content-type': "application/x-www-form-urlencoded",
-                'cache-control': "no-cache",
-                'x-access-token': token
-                }
-        respose = requests.put(route, data=payload, headers=headers)
-        if(respose.status_code == 200):
-            messagebox.showinfo('Notification', 'Password changed successfully')
-            Menu()
-        else:
-            messagebox.showerror('Error', 'Unable to change passord. Try again.')
-            Menu()
-    else:
-        messagebox.showerror('Error', 'Unable to change passord. Try again.')
-        Menu()
-    
     
 def ChatWindow(name, pk, privk):
     chatWindow = Toplevel(window)
