@@ -4,11 +4,13 @@ import Encryptor
 from tkinter import *
 from tkinter import messagebox
 
+#global variables, storage for token, username and userid
 window = Tk()
 token = ""
 user = ""
 userId = ""
 
+#MainMenu - Signup, Signin, KeyGen
 def Menu():
     frame = Frame(window)
     lbl = Label(frame, text="End2End encrypted Chat")
@@ -24,6 +26,7 @@ def Menu():
     keygenBtn.pack(expand=YES, fill=X)
     frame.pack()
     
+#SignUp GUI -     
 def SignUp():
     frame = Frame(window)
     nameLbl = Label(frame, text="Username")
@@ -43,9 +46,11 @@ def SignUp():
     btn.pack(expand=YES, fill=X)
     frame.pack()
 
+#Create a new User function
 def CreateNewUser(name, pw, pw2):
-    #route = "https://teamus.me/users/signup"
-    route = "http://localhost:4000/users/signup"
+    route = "https://teamus.me/users/signup"
+    #route = "http://localhost:4000/users/signup"
+    #both passwords must be equal and not empty
     if(pw == pw2 and pw != ''):
         payload = "name=" + name + "&password=" + pw
         headers = {
@@ -53,6 +58,8 @@ def CreateNewUser(name, pw, pw2):
                 'cache-control': "no-cache"
                 }
         response = requests.request("POST", route, data=payload, headers=headers)
+        print(response)
+        #if user creation was successful
         if(response.status_code == 200):
             CreateNewUserSuccessful()
         else:
@@ -60,6 +67,7 @@ def CreateNewUser(name, pw, pw2):
     else:
         CreateNewUserFailed()
 
+#New User created GUI
 def CreateNewUserSuccessful():
     frame = Frame(window)
     lbl = Label(frame, text="Signup completed")
@@ -69,6 +77,7 @@ def CreateNewUserSuccessful():
     btn.pack(expand=YES, fill=X)
     frame.pack()
     
+#New User creation failed GUI
 def CreateNewUserFailed():
     frame = Frame(window)
     lbl = Label(frame, text="Signup failed. Try again")
@@ -78,6 +87,7 @@ def CreateNewUserFailed():
     btn.pack(expand=YES, fill=X)
     frame.pack()
 
+#SignIn GUI
 def SignIn():
     frame = Frame(window)
     nameLbl = Label(frame, text="Username")
@@ -95,32 +105,38 @@ def SignIn():
     btn.pack(expand=YES, fill=X)
     menuBtn.pack(expand=YES, fill=X)
     frame.pack()
-    
+
+#Signin function
 def Login(name, pw):
     global token 
     global user
     global userId
-    #route = "https://teamus.me/users/signin"
-    route = "http://localhost:4000/users/signin"
+    route = "https://teamus.me/users/signin"
+    #route = "http://localhost:4000/users/signin"
     payload = "name=" + name + "&password=" + pw
     headers = {
             'content-type': "application/x-www-form-urlencoded",
             'cache-control': "no-cache"
             }
     response = requests.request("POST", route, data=payload, headers=headers)
+    #if signin was successful
     if(response.status_code == 200):
+        #get userid and token from response
         userId = response.json().get('id')
         user = name
         token = response.json().get('token')
-        StartChat()
+        ChatMenu()
     else:
+        #signin failed
         messagebox.showinfo('Notification','Your login attempt faild. Please try again')
         SignIn()        
      
+#Generates a key pair for the chat
 def KeyGen():
     print('keyGen')
 
-def StartChat():
+#ChatMenu GUI - StartChat, Delete User, MainMenu
+def ChatMenu():
     frame = Frame(window)
     nameLbl = Label(frame, text="Enter name of your chatpartner")
     nameEntry = Entry(frame, bd=5)
@@ -145,11 +161,12 @@ def StartChat():
     menuBtn.pack(expand=YES, fill=X)
     frame.pack()
     
+#Delete user in Database function    
 def DeleteUser():
     global userId
     global token
-    #route = "https://teamus.me/users/
-    route = "http://localhost:4000/users/"
+    route = "https://teamus.me/users/"
+    #route = "http://localhost:4000/users/"
     route = route + userId
     headers = {
             'content-type': "application/x-www-form-urlencoded",
@@ -157,13 +174,15 @@ def DeleteUser():
             'x-access-token': token
             }
     response = requests.delete(route, data=None, headers=headers)
+    #if deletion was successful
     if(response.status_code == 200):
         messagebox.showinfo('Notification', 'User successfully deleted')
         Menu()
     else:
         messagebox.showerror('Error', 'Unable to delete user. Try again.')
         Menu()
-    
+   
+#Opens a new Window - Chat GUI
 def ChatWindow(name, pk, privk):
     chatWindow = Toplevel(window)
     cpName = name
@@ -179,27 +198,25 @@ def ChatWindow(name, pk, privk):
     chatFrm.grid_columnconfigure(0,weight=1)
     chatFrm.grid_rowconfigure(0,weight=1)
     chatBox = Text(chatFrm, borderwidth=3)
-    #chatBox.config(state='disabled')
     chatBox.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
     scrollBar = Scrollbar(chatFrm, command=chatBox.yview)
     scrollBar.grid(row=0, column=1, sticky="nsew")
     chatBox['yscrollcommand'] = scrollBar.set
         
-    input_field = Entry(chatWindow)
+    msgField = Entry(chatWindow)
     endBtn = Button(frame, text="End Chat",
                  command=lambda: [endChat()])
-    input_field.pack(fill=X)
+    msgField.pack(fill=X)
     endBtn.pack()
     
-    
+    #Function which checks every second for new messages 
     def getMessages():
         nonlocal myPrivk
         global user
         while(threadFlg):
             time.sleep(1)
-            #route = "https://teamus.me/messages/getmessage"
-            route = "http://localhost:4000/messages/getmessage" 
-            #payload = "token=" + token + "&from=" + cpName
+            route = "https://teamus.me/messages/getmessage"
+            #route = "http://localhost:4000/messages/getmessage" 
             payload = "from=" + cpName + "&to=" + user
             headers = {
                     'content-type': "application/x-www-form-urlencoded",
@@ -207,24 +224,25 @@ def ChatWindow(name, pk, privk):
                     'x-access-token': token
                     }
             response = requests.request("POST", route, data=payload, headers=headers)
-            print(response.status_code)            
+            #if new message
             if(response.status_code == 200):
+                #get message from response and decrypt it
                 data = response.json().get('message')
                 message = Decryptor.MyJSONDecrypt(data, myPrivk)
                 chatBox.insert(INSERT, '%s\n' % (cpName + ">" + message.decode("latin-1")))
-        print("done")
+        print("End of chat")
     
+    #Function to send a message to the server
     def sendMessage(event):
         nonlocal cpPK
         nonlocal cpName
-        nonlocal input_field
+        nonlocal msgField
         global user
-        inputmsg = input_field.get()
+        inputmsg = msgField.get()
         chatBox.insert(INSERT, '%s\n' % (user + ">" + inputmsg))
         jsonMsg = Encryptor.MyJSONEncrypt(inputmsg, cpPK)
-        #route = "https://teamus.me/messages/sendmessage"
-        route = "http://localhost:4000/messages/sendmessage"
-        #payload = "token=" + token + "&to=" + cpName + "&message=" + jsonMsg
+        route = "https://teamus.me/messages/sendmessage"
+        #route = "http://localhost:4000/messages/sendmessage"
         payload = "from=" + user + "&to=" + cpName + "&message=" + jsonMsg
         headers = {
                 'content-type': 'application/x-www-form-urlencoded',
@@ -232,20 +250,28 @@ def ChatWindow(name, pk, privk):
                 'x-access-token': token
                 }
         response = requests.post(route, data=payload, headers=headers)
-        input_field.delete(0,'end')
+        #Clear message field
+        msgField.delete(0,'end')
         return 'break'
         
+    #Function to end the chat
     def endChat():
+        #ask whether user wants to end the chat
         if messagebox.askyesno('Notification', 'Do you really want to end the Chat?'):
             nonlocal threadFlg
+            #Stop getMessage function
             threadFlg = False
+            #Close ChatWindow
             chatWindow.destroy()
       
+    #Start thread to check for new messages
     thread = threading.Thread(target=getMessages)
     thread.start()
-    input_field.bind("<Return>", sendMessage)
+    #bind Return-Key on sendMessage function
+    msgField.bind("<Return>", sendMessage)
     #chatWindow.bind("<Destroy>", endChat())
-    
+
+#Calls MainMenu, Starts the GUI  
 Menu()
 window.title('End2End Chat by Team us')
 window.geometry('300x300')
