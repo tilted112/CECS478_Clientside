@@ -1,6 +1,7 @@
 import os, requests, json, sys, threading, time
 import Decryptor
 import Encryptor
+import KeyGen
 from tkinter import *
 from tkinter import messagebox
 
@@ -19,7 +20,7 @@ def Menu():
     signInBtn = Button(frame, text="Signin", bd=3,
                        command=lambda: [frame.pack_forget(), SignIn()])
     keygenBtn = Button(frame, text="Generate Key-Pair", bd=3,
-                       command=lambda: [KeyGen()])
+                       command=lambda: [frame.pack_forget(), KeyGenerator()])
     lbl.pack(expand=YES, fill=X)
     createUserBtn.pack(expand=YES, fill=X)
     signInBtn.pack(expand=YES, fill=X)
@@ -132,12 +133,36 @@ def Login(name, pw):
         SignIn()        
      
 #Generates a key pair for the chat
-def KeyGen():
-    print('keyGen')
+def KeyGenerator():
+    frame = Frame(window)
+    privkLbl = Label(frame, text="Enter filename for private key")
+    privkEntry = Entry(frame, bd=5)
+    pkLbl = Label(frame, text="Enter filename for public key")
+    pkEntry = Entry(frame, bd=5)
+    keyGenBtn = Button(frame, text="Generate Keys", bd=3,
+                       command=lambda: [frame.pack_forget(), GenerateKeyPair(privkEntry.get(), pkEntry.get())])
+    privkLbl.pack(expand=YES, fill=X)
+    privkEntry.pack(expand=YES, fill=X)
+    pkLbl.pack(expand=YES, fill=X)
+    pkEntry.pack(expand=YES, fill=X)
+    keyGenBtn.pack(expand=YES, fill=X)
+    frame.pack()
+    
+def GenerateKeyPair(filenamePrivK, filenamePK):
+    if(filenamePK != '' and filenamePrivK != ''):
+        KeyGen.GenerateKeyPair(filenamePrivK, filenamePK)
+        messagebox.showinfo("Notification", "Keypair generated")
+    else:
+        messagebox.showerror("Error", "Please type in filenames for the keys")
+    Menu()
+        
+    
 
 #ChatMenu GUI - StartChat, Delete User, MainMenu
 def ChatMenu():
+    global user
     frame = Frame(window)
+    userLbl = Label(frame, text="Your logged in as:" + user)
     nameLbl = Label(frame, text="Enter name of your chatpartner")
     nameEntry = Entry(frame, bd=5)
     pkLbl = Label(frame, text="Enter filename of public key of your chatpartner")
@@ -150,6 +175,7 @@ def ChatMenu():
                      command=lambda: [frame.pack_forget(), Menu()])
     deleteBtn = Button(frame, text="Delete User",
                        command=lambda: [frame.pack_forget(), DeleteUser()])
+    userLbl.pack(expand=YES, fill=X)
     nameLbl.pack(expand=YES, fill=X)
     nameEntry.pack(expand=YES, fill=X)
     pkLbl.pack(expand=YES, fill=X)
@@ -207,7 +233,7 @@ def ChatWindow(name, pk, privk):
     endBtn = Button(frame, text="End Chat",
                  command=lambda: [endChat()])
     msgField.pack(fill=X)
-    endBtn.pack()
+    endBtn.pack(side=BOTTOM)
     
     #Function which checks every second for new messages 
     def getMessages():
@@ -259,6 +285,7 @@ def ChatWindow(name, pk, privk):
         #ask whether user wants to end the chat
         if messagebox.askyesno('Notification', 'Do you really want to end the Chat?'):
             nonlocal threadFlg
+            nonlocal chatWindow
             #Stop getMessage function
             threadFlg = False
             #Close ChatWindow
