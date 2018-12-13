@@ -5,7 +5,7 @@ This is an introduction how to run the client application.
 ### Installation
 Clone this repository to your computer and execute the client.py file with a python compiler of your choice. (Recommend by us is [Spyder IDE](https://www.spyder-ide.org/))
 ### Generate your public-private key pair
-
+Use the generate key pair function in the application to generate a RSA public and private key pair.
 ### Signup
 To signup you just have to think of a username for yourself. Your chatpartner has to know your username in order to chat with you. You also assign a password to your user. If you done so and you got a confirmation that your singup was successful, you are ready to chat.
 ### Signin
