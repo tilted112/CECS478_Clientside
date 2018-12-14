@@ -1,6 +1,6 @@
 # CECS478 Client Application E2E encrypted chat
 Client application for an E2E encrypted chat. As part of the class CECS478 by Team us, Jaime Park and Till Behrendt
-# Design of the E2E encrpyted Chat
+# Design of the E2E encrypted Chat
 Detail to the design can be found in the [design paper](https://github.com/tilted112/CECS478/blob/master/Design%20paper.pdf). There is also a [presentation](https://github.com/tilted112/CECS478/blob/master/Presentation.pdf) with a brief overview over this application.
 ## Getting Started
 This is an introduction how to run the client application.
