@@ -50,7 +50,6 @@ def SignUp():
 #Create a new User function
 def CreateNewUser(name, pw, pw2):
     route = "https://teamus.me/users/signup"
-    #route = "http://localhost:4000/users/signup"
     #both passwords must be equal and not empty
     if(pw == pw2 and pw != ''):
         payload = "name=" + name + "&password=" + pw
@@ -113,7 +112,6 @@ def Login(name, pw):
     global user
     global userId
     route = "https://teamus.me/users/signin"
-    #route = "http://localhost:4000/users/signin"
     payload = "name=" + name + "&password=" + pw
     headers = {
             'content-type': "application/x-www-form-urlencoded",
@@ -192,7 +190,6 @@ def DeleteUser():
     global userId
     global token
     route = "https://teamus.me/users/"
-    #route = "http://localhost:4000/users/"
     route = route + userId
     headers = {
             'content-type': "application/x-www-form-urlencoded",
@@ -242,7 +239,6 @@ def ChatWindow(name, pk, privk):
         while(threadFlg):
             time.sleep(1)
             route = "https://teamus.me/messages/getmessage"
-            #route = "http://localhost:4000/messages/getmessage" 
             payload = "from=" + cpName + "&to=" + user
             headers = {
                     'content-type': "application/x-www-form-urlencoded",
@@ -268,7 +264,6 @@ def ChatWindow(name, pk, privk):
         chatBox.insert(INSERT, '%s\n' % (user + ">" + inputmsg))
         jsonMsg = Encryptor.MyJSONEncrypt(inputmsg, cpPK)
         route = "https://teamus.me/messages/sendmessage"
-        #route = "http://localhost:4000/messages/sendmessage"
         payload = "from=" + user + "&to=" + cpName + "&message=" + jsonMsg
         headers = {
                 'content-type': 'application/x-www-form-urlencoded',
