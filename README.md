@@ -11,7 +11,7 @@ Use the generate key pair function in the application to generate a RSA public a
 ### Signup
 To signup you just have to think of a username for yourself. Your chatpartner has to know your username in order to chat with you. You also assign a password to your user. If you done so and you got a confirmation that your singup was successful, you are ready to chat.
 ### Signin
-To signin remeber your username and password and hit signin. Now you can type in the username of your chatpartner. Also make sure to type in the correct name of your private key and the name of the public key of your chatpartner.
+To signin, remember your username and password and hit signin. Now you can type in the username of your chatpartner. Also make sure to type in the correct name of your private key and the name of the public key of your chatpartner.
 
 
 **Important**
